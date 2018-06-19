@@ -7,8 +7,13 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
-#include <GL/gl3w.h>    // This example is using gl3w to access OpenGL functions. You may freely use any other OpenGL loader such as: glew, glad, glLoadGen, etc.
-//#include <glew.h>
+//#include <GL/gl3w.h>    // This example is using gl3w to access OpenGL functions. You may freely use any other OpenGL loader such as: glew, glad, glLoadGen, etc.
+#ifdef __APPLE__
+    #define GLFW_INCLUDE_GLCOREARB
+    #include <OpenGL/gl3.h>
+#else
+    #include <GL/glew.h>    // You may use gl3w/glew/glad/glLoadGen/etc. whatever already works for you.
+#endif
 #include <GLFW/glfw3.h>
 
 static void glfw_error_callback(int error, const char* description)
@@ -31,7 +36,13 @@ int main(int, char**)
     GLFWwindow* window = glfwCreateWindow(1280, 720, "ImGui GLFW+OpenGL3 example", NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
-    gl3wInit();
+    //gl3wInit();
+
+#ifndef __APPLE__
+    glewExperimental = true; // Needed for core profile
+    GLenum status = glewInit();
+    if (status != GLEW_OK) fprintf(stderr, "Could not initialize GLEW");
+#endif
 
     // Setup Dear ImGui binding
     IMGUI_CHECKVERSION();
